@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     RegisterView, LoginView, LogoutView, ProfileView, UserListView,
-    SkillListView, SwapRequestListView, SwapRequestDetailView, SwapRequestActionView,
+    SkillListView, CreateSkillView, SwapRequestListView, SwapRequestDetailView, SwapRequestActionView,
     FeedbackListView, FeedbackDetailView, user_stats
 )
 
@@ -20,6 +20,7 @@ urlpatterns = [
     
     # Skills
     path('skills/', SkillListView.as_view(), name='skill-list'),
+    path('skills/create/', CreateSkillView.as_view(), name='skill-create'),
     
     # Swap requests
     path('swap-requests/', SwapRequestListView.as_view(), name='swap-request-list'),

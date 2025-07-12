@@ -83,15 +83,21 @@ class UserListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = User.objects.filter(is_public=True).exclude(id=self.request.user.id)
         
-        # Filter by skill if provided
+        # Filter by skill name if provided (legacy)
         skill = self.request.query_params.get('skill', None)
         if skill:
-            # Filter users who have offered or wanted skills containing the search term
             queryset = queryset.filter(
                 Q(sent_requests__offered_skill__name__icontains=skill) | 
                 Q(sent_requests__requested_skill__name__icontains=skill) |
                 Q(received_requests__offered_skill__name__icontains=skill) |
                 Q(received_requests__requested_skill__name__icontains=skill)
+            ).distinct()
+        
+        # Filter by skill_id (offered or wanted)
+        skill_id = self.request.query_params.get('skill_id', None)
+        if skill_id:
+            queryset = queryset.filter(
+                Q(skills_offered__id=skill_id) | Q(skills_wanted__id=skill_id)
             ).distinct()
         
         return queryset
@@ -104,8 +110,16 @@ class SkillListView(generics.ListCreateAPIView):
     
     def get_permissions(self):
         if self.request.method == 'POST':
-            return [permissions.IsAdminUser()]
+            return [permissions.IsAuthenticated()]
         return [permissions.IsAuthenticated()]
+
+
+class CreateSkillView(generics.CreateAPIView):
+    serializer_class = SkillSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        serializer.save()
 
 
 class SwapRequestListView(generics.ListCreateAPIView):

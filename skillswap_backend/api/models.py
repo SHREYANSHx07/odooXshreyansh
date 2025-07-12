@@ -10,6 +10,8 @@ class User(AbstractUser):
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
     availability = models.CharField(max_length=255, blank=True, null=True)
     is_public = models.BooleanField(default=True)
+    skills_offered = models.ManyToManyField('Skill', related_name='users_offering', blank=True)
+    skills_wanted = models.ManyToManyField('Skill', related_name='users_wanting', blank=True)
     
     # Override username field to use email
     USERNAME_FIELD = 'email'
